@@ -2,8 +2,6 @@ from bs4 import BeautifulSoup
 import requests
 
 urls = [ 'https://student2023.lpnu.ua/students_schedule?studygroup_abbrname=%D0%BA%D0%B1-105&semestr=1&semestrduration=1',
-        
-
 ]
 
 def get_schedule(url):
