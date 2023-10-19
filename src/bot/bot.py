@@ -9,6 +9,7 @@ from src.bot.kbs import main_kb
 get_group = False
 
 url = ''
+user_urls= {}
 
 
 @dp.message(F.text == '/start')
@@ -18,6 +19,8 @@ async def get_group_info(message: Message):
 
 @dp.message(F.text == '/schedule')
 async def parse(message: Message):
+    user_id = message.from_user.id
+    url = user_urls[user_id]
     await message.answer(url)  # Print the current URL
     parser = Schedule(day_pairs=day_pairs, url=url, search_ids=search_ids, text=text)
 
@@ -54,7 +57,8 @@ async def get_group(message: Message):
             group_name = match.group(1)
             semester = match.group(2)
             semester_part = match.group(3)
-            url = f'https://student{year}.lpnu.ua/students_schedule?studygroup_abbrname={group_name}&semestr={semester}&semestrduration={semester_part}'
+            user_id = message.from_user.id
+            user_urls[user_id] = f'https://student{year}.lpnu.ua/students_schedule?studygroup_abbrname={group_name}&semestr={semester}&semestrduration={semester_part}'
             get_group = False
         else:
             await message.answer("Помилка: не вдалося знайти всі значення")
