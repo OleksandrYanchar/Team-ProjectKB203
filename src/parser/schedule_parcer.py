@@ -4,74 +4,93 @@ import requests
 import re
 
 class Schedule:
-    def __init__(self,day_pairs: dict[str, list[str]], url: str, text: list[str]) -> None:
+    def __init__(self, day_pairs: dict[str, list[str]], url: str, text: list[str], search_ids: list[str]) -> None:
         self.pattern = r"^(Пн|Вт|Ср|Чт|Пт|Сб|Нд)"
         self.url = url
-        self.text = text 
+        self.text = text
         self.day_pairs = day_pairs
-
-    def get_schedule(self):
-        response = requests.get(self.url)  # Виправлено тут, додано self.url
+        self.search_ids = search_ids
+    
+    def get_schedule(self, url):
+        response = requests.get(url)
         html = response.text
 
-        soup = BeautifulSoup(html, 'html.parser')
-        schedule_elements = soup.find_all('div', class_='stud_schedule')
+        self.text = []
+        for day in self.day_pairs:
+            self.day_pairs[day] = []
 
+        soup = BeautifulSoup(html, 'html.parser')
+        schedule_elements = soup.find_all('div', class_="views-row")
         for schedule_element in schedule_elements:
             day = schedule_element.find_previous('span', class_='view-grouping-header').text
-            lesson_element = schedule_element.find('div', class_='group_content')
+            lessons_elements = schedule_element.find_all(lambda tag: tag.has_attr('id'))
+            if lessons_elements:
+                for lesson_element in lessons_elements:
+                    lesson_content = lesson_element.find_all('div', class_='group_content')
 
-            lesson_number_element = lesson_element.find_previous('h3')
-            lesson_number = lesson_number_element.text if lesson_number_element else "Номер пари не знайдено"
+                    lesson_number_element = lesson_element.find_previous('h3')
+                    lesson_number = lesson_number_element.text if lesson_number_element else "Номер пари не знайдено"
 
-            lesson_info = lesson_element.text.strip()
+                    lesson_info = lesson_content[0].text.strip()
 
-            status_text = self.get_lesson_status(lesson_element)  
+                    status_text = self.get_lesson_status(lesson_element)
 
-            self.text.append((f'{day}: Пара {lesson_number} {status_text} - {lesson_info}'))
+                    self.text.append(f'{day}: Пара {lesson_number} {status_text} - {lesson_info}')
 
-        print(self.text)  
-        self.print_pairs()          
-
-    def get_lesson_status(self, lesson_element):  
-        if lesson_element.find('div', id='group_chys'):
+        self.process_schedule()
+        self.print_schedule()
+        print(self.day_pairs)
+        
+    def get_lesson_status(self, lesson_element) -> str:
+        lesson_id = lesson_element.get('id')
+        if lesson_id == 'group_chys':
             return '(чисельник)'
-        elif lesson_element.find('div', id='group_znam'):
+        elif lesson_id == 'group_znam':
             return '(знаменник)'
-        elif lesson_element.find('div', id="sub_1_znam"):
+        elif lesson_id == "sub_1_znam":
             return '(перша група знаменник)'
-        elif lesson_element.find('div', id="sub_2_znam"):
+        elif lesson_id == "sub_2_znam":
             return '(друга група знаменник)'
-        elif lesson_element.find('div', id="sub_1_chys"):
+        elif lesson_id == "sub_1_chys":
             return '(перша група чисельник)'
-        elif lesson_element.find('div', id="sub_2_chys"):
-            return '(друга гарпа чисельник)'
+        elif lesson_id == "sub_2_chys":
+            return '(друга група чисельник)'
+        elif lesson_id == "sub_2_full":
+            return '(друга група)'
+        elif lesson_id == "sub_1_full":
+            return '(перша група)'
         else:
             return ''
-    def check_match(self):
+
+    def process_schedule(self):
         for lesson in self.text:
             match = re.search(self.pattern, lesson)
             if match:
                 day = match.group(1)
                 if day in self.day_pairs:
-                    self.day_pairs[day].append(f'{lesson}\n')
-        return self.day_pairs
-        
-    def print_pairs(self):
+                    self.day_pairs[day].append(self.clean_lesson(lesson))
+
+
+
+    def clean_lesson(self, lesson):
         replacements = {
-    "Пн: ": " ",
-    "Вт: ": "",
-    "Ср: ": " ",
-    "Чт: ": " ",
-    "Пт: ": " ",
-    "Сб: ": " ",
-    "Нд: ": " ",
-}
-        self.check_match()
+            "Пн: ": " ",
+            "Вт: ": "",
+            "Ср: ": " ",
+            "Чт: ": " ",
+            "Пт: ": " ",
+            "Сб: ": " ",
+            "Нд: ": " ",
+        }
+        for old, new in replacements.items():
+            lesson = re.sub(rf'\b{old}\b', new, lesson)
+            return lesson
+ 
+    def print_schedule(self):
         for day, lessons in self.day_pairs.items():
             if lessons:
                 print(day)
                 for lesson in lessons:
-                    for old, new in replacements.items():
-                        lesson = re.sub(rf'\b{old}\b', new, lesson)
-                    print(lesson)
+                   print(lesson)
+                   return lesson
+                
