@@ -19,22 +19,30 @@ async def get_group_info(message: Message):
 
 @dp.message(F.text == '/schedule')
 async def parse(message: Message):
-    user_id = message.from_user.id
-    url = user_urls[user_id]
-    await message.answer(url)  # Print the current URL
-    parser = Schedule(day_pairs=day_pairs, url=url, search_ids=search_ids, text=text)
+    try:
+        user_id = message.from_user.id
+        url = user_urls[user_id]
+        await message.answer(url)  # Print the current URL
+        parser = Schedule(day_pairs=day_pairs, url=url, search_ids=search_ids, text=text)
 
     # Fetch the schedule using the current URL
-    parser.get_schedule(url)
 
-    formatted_schedule= ' '
-    for day, lessons in day_pairs.items():
-        if lessons:
-            formatted_schedule = f"*{day}*\n\n"
-            for lesson in lessons:
-                formatted_schedule += f"{lesson.strip()}\n\n"
-            await message.answer(formatted_schedule)
-    formatted_schedule= ' '
+        parser.get_schedule(url)
+
+        formatted_schedule= ''
+        for day, lessons in day_pairs.items():
+            if lessons:
+                formatted_schedule = f"*{day}*\n\n"
+                for lesson in lessons:
+                    formatted_schedule += f"{lesson.strip()}\n\n"
+                if     formatted_schedule== '':
+                    await message.answer('Невдалося дістати розклад')
+                else:
+                    await message.answer(formatted_schedule)
+        formatted_schedule= ''
+    except Exception:
+        await message.answer(f'Невдалося дістати розклад\n')
+    
 
 
 
@@ -42,8 +50,8 @@ async def parse(message: Message):
 async def parse(message: Message):
     global get_group 
     get_group = True
-    await message.answer('Відправте номер групи семестр та яка частина\n Наприклад(кб-203 1 1)')
-
+    await message.answer('Відправте номер групи семестр та яка частина\n Наприклад(кб-203 1 1)\n а після цього /schedule щоб отримати розклад')
+    
 @dp.message(F.text == '🦽Звязок з авторами')
 async def send_url(message: Message):
     await message.answer('https://github.com/OleksandrYanchar')
