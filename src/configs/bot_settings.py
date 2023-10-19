@@ -16,8 +16,7 @@ dp = Dispatcher()
 
 year = datetime.date.today().year
 
-
-group_name = 'кб-203'   
+group_name = 'кб-103'
 semester = '1'
 semester_part = '1'
 
@@ -34,3 +33,6 @@ day_pairs: dict[str, list[str]] = {
     'Сб': [],
     'Нд': []
 }
+
+search_ids: list[str] =["group_full", "sub_1_chys", "sub_2_chys"
+                        "sub_2_znam", "sub_1_znam", "sub_1_full","igroup_chys", "group_znam" ] 
