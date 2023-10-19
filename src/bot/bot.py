@@ -44,6 +44,9 @@ async def parse(message: Message):
     get_group = True
     await message.answer('Відправте номер групи семестр та яка частина\n Наприклад(кб-203 1 1)')
 
+@dp.message(F.text == '🦽Звязок з авторами')
+async def send_url(message: Message):
+    await message.answer('https://github.com/OleksandrYanchar')
 
 @dp.message()
 async def get_group(message: Message):
