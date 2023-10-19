@@ -3,7 +3,6 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 main_kb = ReplyKeyboardMarkup(keyboard=[
         [
-            KeyboardButton(text='👨‍🎓⛓️ Розклад занять'),
             KeyboardButton(text='🦽Звязок з авторами'),
                         KeyboardButton(text='/start'),
                                     KeyboardButton(text='/selectGroup'),
