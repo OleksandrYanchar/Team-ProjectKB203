@@ -6,9 +6,11 @@ main_kb = ReplyKeyboardMarkup(keyboard=[
             KeyboardButton(text='🦽Звязок з авторами'),
                         KeyboardButton(text='/start'),
                                     KeyboardButton(text='/selectGroup'),
-                                    KeyboardButton(text='/schedule')
-
-
+                                    KeyboardButton(text='/schedule'),
+        ],
+        [
+            KeyboardButton(text='/info'),
+                                    KeyboardButton(text='/dict'),
         ]
     ],
     resize_keyboard=True,

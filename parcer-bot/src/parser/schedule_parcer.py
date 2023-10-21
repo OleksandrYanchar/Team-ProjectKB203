@@ -75,7 +75,7 @@ class Schedule:
     def clean_lesson(self, lesson):
         replacements = {
             "Пн: ": " ",
-            "Вт: ": "",
+            "Вт: ": " ",
             "Ср: ": " ",
             "Чт: ": " ",
             "Пт: ": " ",
@@ -83,8 +83,9 @@ class Schedule:
             "Нд: ": " ",
         }
         for old, new in replacements.items():
-            lesson = re.sub(rf'\b{old}\b', new, lesson)
-            return lesson
+            lesson = lesson.replace(old, new)
+        return lesson
+
  
     def print_schedule(self):
         for day, lessons in self.day_pairs.items():
